@@ -106,7 +106,7 @@ To run the application, please follow guidlines below
   # start server
   (blog-application-XXXX) $  python manage.py runserver
   
-  # Copy the IP address provided once your server is up and running. (you will something like >> Serving at 127.0.0.1....).
+  # Copy the IP address provided once your server is up and running. (you will see something like >> Serving at 127.0.0.1....).
   
   # Open the address in the browser
   >>> http://127.0.0.1:XXXX/
