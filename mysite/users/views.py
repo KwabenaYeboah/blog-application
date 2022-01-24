@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegisterationForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib import messages
+from users.models import Profile
 
 def register(request):
     if request.method =='POST':
         form = UserRegisterationForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
+            user = form.save()
+            Profile.objects.create(user=user)
             messages.success(request, f'Account created. You can Sign in now!')
             return redirect('sign_in')
     else:
