@@ -9,6 +9,7 @@ pillow = "==8.4.0"
 django-crispy-forms = "==1.13"
 djangorestframework = "==3.13"
 dj-rest-auth = "==2.2.2"
+django-allauth = "==0.47.0"
 
 [dev-packages]
 
