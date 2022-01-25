@@ -9,7 +9,7 @@ def register(request):
         form = UserRegisterationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            Profile.objects.create(user=user)
+            #Profile.objects.create(user=user)
             messages.success(request, f'Account created. You can Sign in now!')
             return redirect('sign_in')
     else:

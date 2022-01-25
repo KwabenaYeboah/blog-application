@@ -40,7 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    
+    #3rd-party apps
     'rest_framework',
+    'rest_framework.authtoken',
+    'allauth', 
+    'allauth.account', 
+    'allauth.socialaccount', 
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +146,15 @@ EMAIL_PORT =  587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_USERNAME')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
+
+SITE_ID = 1
