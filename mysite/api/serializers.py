@@ -8,7 +8,7 @@ class PostSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
     class Meta:
         model = Post
-        fields = ['id','author','title','content','post_date']
+        fields = ['url','id','author','title','content','post_date']
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     class Meta:
         model = User
-        fields = ['id', 'profile','username','email'] 
+        fields = ['url','profile','username','email'] 
     
     # def create(self, validated_data):
     #     profile_data = validated_data.pop('profile')
