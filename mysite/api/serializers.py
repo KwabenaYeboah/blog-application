@@ -15,17 +15,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['image'] 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
     profile = ProfileSerializer()
     class Meta:
         model = User
-        fields = ['id', 'profile','username','email','password',] 
+        fields = ['id', 'profile','username','email'] 
     
-    def create(self, validated_data):
-        profile_data = validated_data.pop('profile')
-        user = User.objects.create_user(**validated_data)
-        Profile.objects.create(user=user, **profile_data)
-        return user
+    # def create(self, validated_data):
+    #     profile_data = validated_data.pop('profile')
+    #     user = User.objects.create_user(**validated_data)
+    #     Profile.objects.create(user=user, **profile_data)
+    #     return user
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile')
