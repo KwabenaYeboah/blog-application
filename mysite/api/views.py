@@ -10,8 +10,9 @@ class PostView(viewsets.ModelViewSet):
 class ProfileView(viewsets.ModelViewSet):
     queryset  = User.objects.all()
     serializer_class = UserSerializer
+    http_method_names = ['get','retrieve','put','patch']
 
-class AuthorView(viewsets.ModelViewSet):
+class AuthorView(viewsets.ReadOnlyModelViewSet):
     
     serializer_class = AuthorSerializer
     
