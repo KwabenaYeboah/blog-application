@@ -5,10 +5,11 @@ from django.contrib.auth.models import User
 from users.models import Profile
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(queryset=User.objects.all(), slug_field='username')
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
     class Meta:
         model = Post
         fields = ['url','id','author','title','content','post_date']
+        read_only_fields = ['post_date']
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
