@@ -1,11 +1,11 @@
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
 from blog.models import Post
-from users.models import Profile
 
 class TestPostView(APITestCase):
     def setUp(self):
@@ -27,6 +27,7 @@ class TestPostView(APITestCase):
             email="kwabena@gmail.com",
             password="post2020")
         
+        # Generate Token for authentication
         self.token = Token.objects.create(user=self.user)
         
         # post data
@@ -124,7 +125,7 @@ class TestPostView(APITestCase):
         self.assertEqual(response.data["detail"], "You do not have permission to perform this action.")
     
     def test_if_superuser_has_no_post_object_permission(self):
-         # authenticate author and create a post
+        # authenticate author and create a post
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         post_response = self.client.post(self.post_list_create_url, self.data, format="json")
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
@@ -137,4 +138,27 @@ class TestPostView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["detail"], "You do not have permission to perform this action.")
         
+    def test_pagination(self):
+        #create test data
+        for post in range(20):
+            Post.objects.create(
+                author=self.user,
+                title=f'Post {post + 1}',
+                content="My first algorithm course was principles of programming"
+            )
         
+        response = self.client.get(self.post_list_create_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 20)
+        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(response.data['previous'], None)
+        self.assertNotEqual(response.data['next'], None)
+        
+        # Test pagination max limit works by increasing the upper bound(limit)
+        limit_offset = {'limit':15, 'offset':5}
+        url = f"{self.post_list_create_url}?{urlencode(limit_offset)}"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 10)  # Upper bound can't exceed 10
+        self.assertNotEqual(response.data['previous'], None)
+        self.assertNotEqual(response.data['next'], None)
