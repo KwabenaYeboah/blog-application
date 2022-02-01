@@ -27,9 +27,6 @@ class TestPostView(APITestCase):
             email="kwabena@gmail.com",
             password="post2020")
         
-        # Generate Token for authentication
-        self.token = Token.objects.create(user=self.user)
-        
         # post data
         self.data = {
             "title": "Principles of Programming",
@@ -44,7 +41,16 @@ class TestPostView(APITestCase):
         
         # urls
         self.post_list_create_url = reverse("post-list")
-        self.post_detail_url = "post-detail"    
+        self.post_detail_url = "post-detail"  
+    
+    # A function to authenticate user via session authentication 
+    def session_auth(self, username, password):
+        self.client.login(username=username, password=password)
+    
+    # A function to authenticate user via token authentication
+    def token_auth(self, user):
+        token = Token.objects.create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')  
         
     def test_get_post_list(self):
         response = self.client.get(self.post_list_create_url)
@@ -53,16 +59,14 @@ class TestPostView(APITestCase):
     
     def test_post_valid_data(self):
         # auhtenticate user via session authentication
-        login = self.client.login(username="Kobby", password="test2020")
-        self.assertTrue(login)
+        self.session_auth("Kobby", "test2020")
         # make POST request
         response = self.client.post(self.post_list_create_url, self.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["author"], "Kobby")
         
     def test_post_invalid_data_results_400(self):
-        login = self.client.login(username="Kobby", password="test2020")
-        self.assertEqual(login, True)
+        self.session_auth("Kobby", "test2020")
         response = self.client.post(self.post_list_create_url, self.invalid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["title"][0], "This field may not be blank.")
@@ -74,7 +78,7 @@ class TestPostView(APITestCase):
     
     def test_post_and_retrieve_by_id(self):
         # login via token
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.token_auth(self.user)
         post_response = self.client.post(self.post_list_create_url, self.data, format="json")
         response = self.client.get(reverse(self.post_detail_url, args=[post_response.data["id"]]))
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
@@ -82,14 +86,14 @@ class TestPostView(APITestCase):
         self.assertEqual(response.data["author"], "Kobby")
         
     def test_post_wrong_id_returns_404(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.token_auth(self.user)
         post_response = self.client.post(self.post_list_create_url, self.data, format="json")
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         response = self.client.get(reverse(self.post_detail_url, args=[404]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         
     def test_post_and_update_data(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.token_auth(self.user)
         update_data = {
             "title": "Principles of Programming = COMP 109",
             "content": "My first algorithm course was principles of programming in level 100"
@@ -104,7 +108,7 @@ class TestPostView(APITestCase):
         self.assertEqual(update_response.data["title"], "Principles of Programming = COMP 109")
     
     def test_delete_exitsting_data(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.token_auth(self.user)
         post_response = self.client.post(self.post_list_create_url, self.data, format="json")
         response = self.client.delete(reverse(self.post_detail_url, args=[post_response.data["id"]]))
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
@@ -112,7 +116,7 @@ class TestPostView(APITestCase):
     
     def test_if_another_author_has_post_object_permission(self):
         # authenticate author and create a post
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.token_auth(self.user)
         post_response = self.client.post(self.post_list_create_url, self.data, format="json")
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         
@@ -126,14 +130,14 @@ class TestPostView(APITestCase):
     
     def test_if_superuser_has_no_post_object_permission(self):
         # authenticate author and create a post
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.token_auth(self.user)
         post_response = self.client.post(self.post_list_create_url, self.data, format="json")
         self.assertEqual(post_response.status_code, status.HTTP_201_CREATED)
         
         # log author out
         self.client.credentials()
         # Authenticate superuser and make delete request to the post object
-        self.client.login(username="Boss", password="boss.2020")
+        self.session_auth("Boss", "boss.2020")
         response = self.client.delete(reverse(self.post_detail_url, args=[post_response.data["id"]]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data["detail"], "You do not have permission to perform this action.")
