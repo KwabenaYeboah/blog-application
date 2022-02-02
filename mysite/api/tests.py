@@ -166,3 +166,47 @@ class TestPostView(APITestCase):
         self.assertEqual(len(response.data['results']), 10)  # Upper bound can't exceed 10
         self.assertNotEqual(response.data['previous'], None)
         self.assertNotEqual(response.data['next'], None)
+        
+
+class TestAuthorView(APITestCase):
+    '''Test for AuthorView which lists all blog authors and their posts'''
+    def setUp(self):
+         # create user 
+        self.user = User.objects.create_user(
+            username="Kobby",
+            email="kobby4140@gmail.com",
+            password="test2020")
+        
+        # create a second user
+        self.user2 = User.objects.create_user(
+            username="Kwabena",
+            email="kwabena@gmail.com",
+            password="post2020")
+    
+        
+        # urls
+        self.authors_list_url = reverse("author-list")
+        
+        # Create 5 posts for first user
+        for post in range(5):
+            Post.objects.create(
+                author=self.user,
+                title=f'Post {post + 1}',
+                content="My first algorithm course was principles of programming"
+            )
+        
+        for post in range(5):
+            Post.objects.create(
+                author=self.user2,
+                title=f'Post {post + 1}',
+                content="My first algorithm course was principles of programming"
+            )
+
+    def test_get_author_lists(self):
+        response = self.client.get(self.authors_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 2) # Only two authors so far (pagination)
+        self.assertEqual(len(response.data["results"][0]["posts"]), 5)  # First author has 5 posts
+        self.assertEqual(response.data["results"][0]["username"], "Kobby") 
+        self.assertEqual(response.data['previous'], None)
+        self.assertEqual(response.data['next'], None)
