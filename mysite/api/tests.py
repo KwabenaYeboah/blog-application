@@ -210,3 +210,87 @@ class TestAuthorView(APITestCase):
         self.assertEqual(response.data["results"][0]["username"], "Kobby") 
         self.assertEqual(response.data['previous'], None)
         self.assertEqual(response.data['next'], None)
+        
+class TestProfileView(APITestCase):
+    def setUp(self):
+        #create a superuser
+        self.user = User.objects.create_superuser(
+            username="Boss",
+            email="boss@gmail.com",
+            password="boss.2020")
+        # create user 
+        self.user = User.objects.create_user(
+            username="Kobby",
+            email="kobby4140@gmail.com",
+            password="test2020")
+        
+        # create a second user
+        self.user2 = User.objects.create_user(
+            username="Kwabena",
+            email="kwabena@gmail.com",
+            password="post2020")
+        
+        # Urls 
+        self.profile_list_url = reverse("user-list")
+        self.profile_detail_url = "user-detail"
+        
+    # A function to authenticate user via session authentication 
+    def session_auth(self, username, password):
+        self.client.login(username=username, password=password)
+    
+    def test_get_profile_list(self):
+        self.session_auth(username="Kobby", password="test2020")
+        response = self.client.get(self.profile_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["count"], 3) # Only three users so far
+        self.assertEqual(response.data['previous'], None)
+        self.assertEqual(response.data['next'], None)
+        #print("\n", response.data)
+   
+    def test_get_profile_list_without_authentication_results_in_403(self):
+        response = self.client.get(self.profile_list_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["detail"], "Authentication credentials were not provided.")
+        
+    def test_get_profile_by_id(self):
+        self.session_auth(username="Kwabena", password="post2020")
+        response = self.client.get(reverse(self.profile_detail_url, args=[self.user2.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.data["url"], None) # user profile url exists
+        self.assertEqual(response.data["username"], "Kwabena")
+        self.assertEqual(response.data["email"], "kwabena@gmail.com")
+        self.assertEqual(response.data["profile"]["image"].split("/")[-1], "default.jpg") # Default image for user profile
+    
+    def test_get_profile_with_incorrect_id(self):
+        self.session_auth(username="Kwabena", password="post2020")
+        response = self.client.get(reverse(self.profile_detail_url, args=[404]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    # def test_update_existing_user_profile(self):
+    #     self.session_auth(username="Kobby", password="test2020")
+    #     update_data = {
+    #         "profile": {"image":self.user.profile.image},
+    #         "username":"Kobby",
+    #         "email": "kobby@gmail.com"
+    #     }
+    #     response = self.client.put(reverse(self.profile_detail_url, args=[self.user.id]),
+    #                                update_data,
+    #                                format="json")
+    #     print("\n", response.data)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(response.data["email"], "kobby@gmail.com")
+        
+    def test_delete_existing_user_profile(self):
+        self.session_auth(username="Kobby", password="test2020")
+        response = self.client.delete(reverse(self.profile_detail_url, args=[self.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    
+    def test_if_normal_user_can_delete_another_existing_user_profile(self):
+        self.session_auth(username="Kobby", password="test2020")
+        response = self.client.delete(reverse(self.profile_detail_url, args=[self.user2.id])) # user 2
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        
+    def test_if_superuser_has_permission_to_delete_exiting_user_profile(self):
+        self.session_auth(username="Boss", password="boss.2020")
+        response = self.client.delete(reverse(self.profile_detail_url, args=[self.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
