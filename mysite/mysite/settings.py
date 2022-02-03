@@ -163,3 +163,5 @@ REST_FRAMEWORK = {
 }
 
 SITE_ID = 1
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
