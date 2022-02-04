@@ -9,6 +9,7 @@ A Django/Python blog application implementing CRUD functionality and a robust us
     <li><a href="#image">Screenshots</a></li>
     <li><a href="#tech">Technology</a></li>
     <li><a href="#setup">Setup</a></li>
+    <li><a href="#test">Unit Test</a></li>
     <li><a href="#status">Project Status</a></li>
     <li><a href="#contribute">Contributing</a></li>
     <li><a href="#contact">Author</a></li>
@@ -91,11 +92,14 @@ To run the application, please follow guidlines below
   # Clone this repository into the directory of your choice
   $ git clone https://github.com/KwabenaYeboah/blog-application.git
   
-  # Move into project folder
+  # Move into project directory
   $ cd blog-application
   
   # Install from Pipfile
   $ pipenv install
+  
+  # Move into mysite directory
+  $ cd mysite
   
   # Migrate database models
   (blog-application-xxx) $ python manage.py migrate
@@ -116,6 +120,12 @@ To run the application, please follow guidlines below
   >>> http://127.0.0.1:XXXX/admin/
   ```
 
+<h2 id="test">Unit Test Command</h2>
+
+```
+$ pytest -v
+```
+
 <h2 id="status">Project Status</h2>
 Project is: In Progress
 
@@ -135,3 +145,4 @@ Pull requests and stars are always welcome
 <h2 id="licence">Licence</h2>
 
   **MIT** Licence
+  
