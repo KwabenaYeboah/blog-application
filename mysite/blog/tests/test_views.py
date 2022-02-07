@@ -38,6 +38,7 @@ class TestBlogViews(TestCase):
     def test_post_create_view(self):
         login = self.client.login(username="Kobby", password="post.2020")
         self.assertTrue(login)
+        
         data = {
             "title": "Principles of Programming",
             "content": "My first algorithm course was principles of programming"
@@ -50,11 +51,20 @@ class TestBlogViews(TestCase):
         post_id = Post.objects.last().id
         login = self.client.login(username="Kobby", password="post.2020")
         self.assertTrue(login)
+        
         update_data = {
             "title": "Designing and Analysis of Algorithm",
             "content": "My first algorithm course was principles of programming"
         }
-        response = self.client.post(reverse("post-update", args=[post_id]), update_data)
+        response = self.client.post(reverse("post-update", args=[post_id]), update_data) 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Post.objects.last().title, "Designing and Analysis of Algorithm")
         
+        
+    def test_post_delete_view(self):
+        post_id = Post.objects.last().id
+        login = self.client.login(username="Kobby", password="post.2020")
+        self.assertTrue(login)
+        
+        response = self.client.post(reverse("post-delete", args=[post_id]))
+        self.assertEqual(response.status_code, 302)
