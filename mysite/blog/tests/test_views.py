@@ -45,3 +45,16 @@ class TestBlogViews(TestCase):
         response = self.client.post(reverse("post-create"), data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Post.objects.last().title, "Principles of Programming")
+        
+    def test_post_update_view(self):
+        post_id = Post.objects.last().id
+        login = self.client.login(username="Kobby", password="post.2020")
+        self.assertTrue(login)
+        update_data = {
+            "title": "Designing and Analysis of Algorithm",
+            "content": "My first algorithm course was principles of programming"
+        }
+        response = self.client.post(reverse("post-update", args=[post_id]), update_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Post.objects.last().title, "Designing and Analysis of Algorithm")
+        
