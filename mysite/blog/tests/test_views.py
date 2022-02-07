@@ -22,7 +22,6 @@ class TestBlogViews(TestCase):
     def test_post_list_view(self):
         url = reverse('blog-home')
         response = self.client.get(url)
-        print("\n", response.context)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "technology")
         self.assertTemplateUsed(response, 'blog/home.html')
@@ -36,3 +35,13 @@ class TestBlogViews(TestCase):
         self.assertContains(response, "Interesting times ahead")
         self.assertTemplateUsed(response, 'blog/post_detail.html')
         
+    def test_post_create_view(self):
+        login = self.client.login(username="Kobby", password="post.2020")
+        self.assertTrue(login)
+        data = {
+            "title": "Principles of Programming",
+            "content": "My first algorithm course was principles of programming"
+        }
+        response = self.client.post(reverse("post-create"), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Post.objects.last().title, "Principles of Programming")
