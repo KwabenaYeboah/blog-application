@@ -52,7 +52,18 @@ class TestBlogViews(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Post.objects.last().title, "Principles of Programming")
     
+    def test_if_post_create_requires_authentication(self):
+        data = {
+            "title": "Principles of Programming",
+            "content": "My first algorithm course was principles of programming"
+        }
         
+        redirect_url = f"{reverse('sign_in')}?next={reverse('post-create')}"
+        response = self.client.post(reverse("post-create"), data)
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, redirect_url) 
+          
     def test_post_update_view(self):
         post_id = Post.objects.last().id
         login = self.client.login(username="Kobby", password="post.2020")
@@ -65,7 +76,6 @@ class TestBlogViews(TestCase):
         response = self.client.post(reverse("post-update", args=[post_id]), update_data) 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Post.objects.last().title, "Designing and Analysis of Algorithm")
-        
         
     def test_post_delete_view(self):
         post_id = Post.objects.last().id
