@@ -14,6 +14,11 @@ class TestBlogViews(TestCase):
             email="kobby@gmail.com",
             password="post.2020")
         
+        self.user2 = User.objects.create_user(
+            username="Kwabena",
+            email="kwabena@gmail.com",
+            password="test.2020")
+        
         self.post = Post.objects.create(
             author=self.user,
             title="Interesting times ahead",
@@ -46,6 +51,7 @@ class TestBlogViews(TestCase):
         response = self.client.post(reverse("post-create"), data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Post.objects.last().title, "Principles of Programming")
+    
         
     def test_post_update_view(self):
         post_id = Post.objects.last().id
@@ -68,3 +74,11 @@ class TestBlogViews(TestCase):
         
         response = self.client.post(reverse("post-delete", args=[post_id]))
         self.assertEqual(response.status_code, 302)
+        
+    def test_if_another_author_has_permission_to_delete_other_posts(self):
+        post_id = Post.objects.last().id
+        login = self.client.login(username="Kwabena", password="test.2020")
+        self.assertTrue(login)
+        
+        response = self.client.post(reverse("post-delete", args=[post_id]))
+        self.assertEqual(response.status_code, 403)
