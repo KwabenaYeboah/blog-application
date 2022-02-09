@@ -92,3 +92,20 @@ class TestBlogViews(TestCase):
         
         response = self.client.post(reverse("post-delete", args=[post_id]))
         self.assertEqual(response.status_code, 403)
+        
+    def test_user_post_list_view(self):
+        # Create a series of posts
+        for post in range(10):
+            Post.objects.create(
+            author=self.user2,
+            title=f"Post {post + 1}",
+            content=f"Principles of programming{post + 1}")
+
+        login = self.client.login(username="Kwabena", password="test.2020")
+        self.assertTrue(login)
+        
+        response = self.client.get(reverse("user-posts", args=[self.user2.username]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Principles of programming")
+        self.assertEqual(Post.objects.filter(author=self.user2).count(), 10)
+        
