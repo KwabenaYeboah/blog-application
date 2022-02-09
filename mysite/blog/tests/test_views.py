@@ -95,17 +95,39 @@ class TestBlogViews(TestCase):
         
     def test_user_post_list_view(self):
         # Create a series of posts
-        for post in range(10):
+        for post in range(1, 11):
             Post.objects.create(
             author=self.user2,
-            title=f"Post {post + 1}",
-            content=f"Principles of programming{post + 1}")
-
-        login = self.client.login(username="Kwabena", password="test.2020")
-        self.assertTrue(login)
+            title=f"Post {post}",
+            content=f"Principles of programming{post}")
         
         response = self.client.get(reverse("user-posts", args=[self.user2.username]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Principles of programming")
         self.assertEqual(Post.objects.filter(author=self.user2).count(), 10)
         
+class TestPagination(TestCase):
+    def setUp(self):
+        # create user
+        self.user = User.objects.create_user(
+            username="Kwabena",
+            email="kwabena@gmail.com",
+            password="test.2020")
+        
+         # Create a series of posts
+        for post in range(1, 11):
+            Post.objects.create(
+            author=self.user,
+            title=f"Pagination {post}",
+            content=f"Testing for Pagination {post}")
+
+    def test_pagination(self):
+        response = self.client.get(reverse("blog-home"))
+        self.assertTrue(response.context["is_paginated"])
+        self.assertEqual(str(response.context["page_obj"]), "<Page 1 of 2>")
+        self.assertTrue(response.context["paginator"])
+        self.assertEqual(len(response.context["object_list"]), 5)
+
+        
+            
+      
