@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import User
 
 from .forms import UserCreationForm
 class TestSignUpPage(TestCase):
@@ -17,3 +16,19 @@ class TestSignUpPage(TestCase):
         form = self.response.context.get("form")
         self.assertIsInstance(form, UserCreationForm)
         self.assertContains(self.response, "csrfmiddlewaretoken")
+    
+    def test_register_and_login_user(self):
+        data = {
+            "username": "Kwabena",
+            "email": "kwabena@gmail.com",
+            "password1": "kobby.2020",
+            "password2": "kobby.2020",
+        }
+        response = self.client.post(reverse("register"), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('sign_in'))
+        
+        login = self.client.login(username="Kwabena", password="kobby.2020")
+        self.assertTrue(login)
+        
+        
