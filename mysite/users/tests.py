@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 
+from .forms import UserCreationForm
 class TestSignUpPage(TestCase):
     def setUp(self):
         self.response = self.client.get(reverse("register"))
@@ -12,3 +13,7 @@ class TestSignUpPage(TestCase):
         self.assertContains(self.response, "Join Today")
         self.assertNotContains(self.response, "This text is not there")
         
+    def test_signup_form(self):
+        form = self.response.context.get("form")
+        self.assertIsInstance(form, UserCreationForm)
+        self.assertContains(self.response, "csrfmiddlewaretoken")
