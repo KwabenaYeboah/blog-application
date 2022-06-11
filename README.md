@@ -1,5 +1,5 @@
 # blog-application
-A Django/Python blog application implementing CRUD functionality and a robust user authentication system.
+A Django/Python blog application implementing CRUD functionality and a robust user authentication system with API integration.
 
 <h2>Sections</h2>
 <p>
@@ -68,10 +68,11 @@ The app has the necessary authentications and permissions in place.
 <ul>
   <li>Python</li>
   <li>Django</li>
+  <li>Django Rest</li>
   <li>HTML5</li>
   <li>CSS3</li>
   <li>Boostrap4</li>
-  <li>Mobile Responsive</li>
+
 </ul>
 
 <h2 href=#setup>Setup</h2>
@@ -127,7 +128,7 @@ $ pytest -v
 ```
 
 <h2 id="status">Project Status</h2>
-Project is: In Progress
+Project is: Done
 
 <h2 id="contribute">Contributing</h2>
 Pull requests and stars are always welcome
